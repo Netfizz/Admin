@@ -19,6 +19,8 @@ class AdminServiceProvider extends ServiceProvider {
 	public function boot()
 	{
 		$this->package('netfizz/admin');
+
+        include __DIR__.'/../../routes.php';
 	}
 
 	/**

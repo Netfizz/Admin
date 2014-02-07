@@ -25,7 +25,7 @@ class BaseController extends Controller {
     {
         // Setup composed views and the variables that they require
         //$this->beforeFilter( 'adminFilter' , array('except' => $this->whitelist) );
-        $composed_views = array( 'admin::*' );
+        $composed_views = array('admin::layout.*');
         View::composer($composed_views, 'Netfizz\Admin\Composers\Page');
     }
 

@@ -8,8 +8,11 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/style.css') }}">
-
+    <script src="{{ asset('packages/netfizz/admin/js/jquery-2.1.0.min.js') }}"></script>
+    <script src="{{ asset('packages/netfizz/admin/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('packages/netfizz/admin/js/jquery.dataTables.min.js') }}"></script>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -35,31 +38,23 @@
 
         {{-- The menu items at the top (collapses down when browser gets small) --}}
         <div class="collapse navbar-left navbar-collapse">
-            @if($menu_items)
-            <ul class="nav navbar-nav">
-                @foreach($menu_items as $url=>$item)
-                @if( $item['top'] )
-                <li class="{{ Request::is( "$urlSegment/$url*" ) ? 'active' : '' }}">
-                <a href="{{ url( $urlSegment.'/'.$url ) }}">{{ $item['name'] }}</a>
-                </li>
-                @endif
-                @endforeach
-                <li><a href="{{ url( $urlSegment.'/logout' ) }}"><strong>Logout</strong></a></li>
-            </ul>
-            @endif
+            {{ $main_menu }}
         </div><!-- /.nav-collapse -->
 
     </div><!-- /.container -->
 
+
+
 </div><!-- /.navbar -->
 
 <div class="container">
+    {{ $breadcrumbs }}
+
     <div class="row">
         @yield('content')
     </div>
 </div><!-- /.container -->
 
-<script src="{{ asset('packages/netfizz/admin/js/jquery-2.1.0.min.js') }}"></script>
-<script src="{{ asset('packages/netfizz/admin/js/bootstrap.min.js') }}"></script>
+
 </body>
 </html>

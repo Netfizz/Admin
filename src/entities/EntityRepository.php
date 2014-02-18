@@ -2,7 +2,7 @@
 
 use Chumper\Datatable\Datatable;
 use Chumper\Datatable\Columns\FunctionColumn;
-use DB;
+use DB, RuntimeException;
 
 class EntityRepository implements EntityRepositoryInterface {
 
@@ -21,16 +21,6 @@ class EntityRepository implements EntityRepositoryInterface {
 
         //$this->primaryKeyName = $this->model->getKeyName();
 
-
-        if ($this->mainColumn == null) {
-
-            if (!isset($this->columns[0])) {
-                // Force the execution to fail by throwing an exception:
-                throw new RuntimeException('No columns defined in entity repository');
-            }
-
-            $this->mainColumn = $this->columns[0];
-        }
     }
 
     public function setDatatable()
@@ -47,15 +37,6 @@ class EntityRepository implements EntityRepositoryInterface {
 
     public function getDatatableCollection()
     {
-
-        return DB::table($this->model->getTable());
-
-        var_dump($this->model);
-        die;
-
-        //var_dump(get_class_methods($this->model));
-        //die;
-
         return $this->model->getDatatableCollection();
     }
 
@@ -67,11 +48,27 @@ class EntityRepository implements EntityRepositoryInterface {
 
     public function getColumns()
     {
+        if (empty($this->columns))
+        {
+            // Force the execution to fail by throwing an exception:
+            throw new RuntimeException('No columns defined in entity repository');
+        }
+
         return $this->columns;
     }
 
     public function getMainColumn()
     {
+        if ($this->mainColumn == null) {
+
+            if (!isset($this->columns[0])) {
+                // Force the execution to fail by throwing an exception:
+                throw new RuntimeException('No columns defined in entity repository');
+            }
+
+            $this->mainColumn = $this->columns[0];
+        }
+
         return $this->mainColumn;
     }
 

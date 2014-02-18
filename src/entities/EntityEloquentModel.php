@@ -1,24 +1,13 @@
 <?php namespace Netfizz\Entities;
 
-use Eloquent;
+use Eloquent, DB;
 
-class EntityEloquentModel extends Eloquent implements EntityModelInterface{
+class EntityEloquentModel extends Eloquent implements EntityModelInterface {
 
-    /*
-    public function all()
-    {
-
-    }
-    */
 
     public function getDatatableCollection()
     {
-
-        //get_class_methods()
-
-        return 'paf';
-
-        //return DB::table($this->getTable());
+        return DB::table($this->getTable());
     }
 
 }

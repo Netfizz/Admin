@@ -3,7 +3,6 @@
 interface EntityModelInterface
 {
 
-
     public function getDatatableCollection();
 
 } 

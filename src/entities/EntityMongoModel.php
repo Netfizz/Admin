@@ -2,12 +2,12 @@
 
 use Eloquent;
 
-class EntityEloquentModel extends Eloquent{
+class EntityMongoModel implements EntityModelInterface {
 
-    /*
-    public function all()
+    public function getDatatableCollection()
     {
 
+        return 'paf';
+
     }
-    */
 }

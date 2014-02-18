@@ -10,7 +10,7 @@ interface EntityRepositoryInterface {
 
     public function destroy($ids);
     */
-    public function all();
+    //public function all();
 
     public function getColumns();
 } 

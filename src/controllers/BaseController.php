@@ -4,7 +4,7 @@ use \Illuminate\Routing\Controller;
 use Chumper\Datatable\Datatable;
 use Chumper\Datatable\Columns\FunctionColumn;
 
-use View, URL, Form, DB, Redirect;
+use View, URL, Form, DB, Redirect, RuntimeException;
 
 class BaseController extends Controller {
 
@@ -49,17 +49,7 @@ class BaseController extends Controller {
 
         $this->className = get_called_class();
 
-        $this->primaryKeyName = $this->repository->getKeyName();
 
-
-        if ($this->mainColumn == null) {
-
-            if (!isset($this->columns[0])) {
-                throwException('Empty Columns');
-            }
-
-            $this->mainColumn = $this->columns[0];
-        }
     }
 
 
@@ -75,11 +65,12 @@ class BaseController extends Controller {
      */
     public function getIndex()
     {
-
+        /*
         if(Datatable::shouldHandle())
         {
             return $this->retrieveDatatableCollection();
         }
+
 
         $datatable = Datatable::table()
             ->addColumn('')
@@ -88,6 +79,11 @@ class BaseController extends Controller {
             ->setUrl(URL::action($this->getActionCtrl('getDatatableCollection')))   // this is the route where data will be retrieved
             ->setOptions('bStateSave', 'true')
             ->render();
+        */
+
+        $datatable = $this->repository->setDatatable();
+
+        $datatable->setUrl(URL::action($this->getActionCtrl('getDatatableCollection')));   // this is the route where data will be retrieved
 
         return View::make('admin::crud.index')->withDatatable($datatable);
     }
@@ -95,13 +91,16 @@ class BaseController extends Controller {
     public function getDatatableCollection()
     {
 
-        $datas = DB::table($this->repository->getTable());
+        //$datas = DB::table($this->repository->getTable());
+
+        $datas = $this->repository->getDatatableCollection();
+
 
         //return Datatable::collection($this->repository->all($this->columns))
         return Datatable::query($datas)
             ->addColumn($this->setSelectionColumn())
-            ->showColumns($this->columns)
-            ->addColumn($this->setMainColumn($this->mainColumn))
+            ->showColumns($this->repository->getColumns())
+            ->addColumn($this->setMainColumn($this->repository->getMainColumn()))
             ->addColumn($this->setActionsColumn())
             ->searchColumns($this->columns)
             //->searchColumns('category')
@@ -112,7 +111,8 @@ class BaseController extends Controller {
 
     protected function setSelectionColumn()
     {
-        $primaryKeyName = $this->primaryKeyName;
+        //$primaryKeyName = $this->primaryKeyName;
+        $primaryKeyName = 'id';
 
         return new FunctionColumn('Selection', function($repository) use ($primaryKeyName)
         {
@@ -122,7 +122,9 @@ class BaseController extends Controller {
 
     protected function setActionsColumn()
     {
-        $primaryKeyName = $this->primaryKeyName;
+        //$primaryKeyName = $this->primaryKeyName;
+        $primaryKeyName = 'id';
+
 
         return new FunctionColumn('Actions', function($repository) use ($primaryKeyName)
         {
@@ -136,7 +138,9 @@ class BaseController extends Controller {
     protected function setMainColumn($mainColumn)
     {
 
-        $primaryKeyName = $this->primaryKeyName;
+        //$primaryKeyName = $this->primaryKeyName;
+        $primaryKeyName = 'id';
+
 
         // Add link to main column item
         return new FunctionColumn($mainColumn, function($repository) use ($mainColumn, $primaryKeyName)

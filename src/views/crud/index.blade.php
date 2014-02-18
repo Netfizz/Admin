@@ -6,6 +6,6 @@
 <p>hey paf !!</p>
 
 
-{{ $datatable }}
+{{ $datatable->render() }}
 
 @stop

@@ -2,10 +2,7 @@
 
 @section('content')
 
-<h1>My entity</h1>
-<p>hey paf !!</p>
-
-
-{{ $datatable }}
+<h1>Edit My entity</h1>
+<p>Ho yeah ! paf !!</p>
 
 @stop

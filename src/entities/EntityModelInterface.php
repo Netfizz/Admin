@@ -5,4 +5,6 @@ interface EntityModelInterface
 
     public function getDatatableCollection();
 
+    public function getKeyName();
+
 } 

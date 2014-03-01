@@ -2,7 +2,7 @@
 
 use Chumper\Datatable\Datatable;
 use Chumper\Datatable\Columns\FunctionColumn;
-use DB, RuntimeException;
+use DB, Form, RuntimeException;
 
 class EntityRepository implements EntityRepositoryInterface {
 
@@ -45,6 +45,11 @@ class EntityRepository implements EntityRepositoryInterface {
 
     }
 
+    public function find($id)
+    {
+        return $this->model->find($id);
+    }
+
 
     public function getColumns()
     {
@@ -70,6 +75,25 @@ class EntityRepository implements EntityRepositoryInterface {
         }
 
         return $this->mainColumn;
+    }
+
+    public function getForm()
+    {
+
+        $form = Form::open();
+        $form .= Form::text('username');
+
+        $form .= Form::close();
+
+        return $form;
+    }
+
+    /**
+     * @return table primary key name
+     */
+    public function getKeyName()
+    {
+        return $this->model->getKeyName();
     }
 
 } 

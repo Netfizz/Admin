@@ -13,4 +13,6 @@ interface EntityRepositoryInterface {
     //public function all();
 
     public function getColumns();
+
+    public function getKeyName();
 } 

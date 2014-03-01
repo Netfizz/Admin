@@ -21,7 +21,7 @@ class BaseController extends Controller {
 
     protected $className;
 
-    protected $primaryKeyName;
+    //protected $primaryKeyName;
 
 	/**
 	 * Setup the layout used by the controller.
@@ -95,12 +95,13 @@ class BaseController extends Controller {
 
         $datas = $this->repository->getDatatableCollection();
 
+        $datatable = new Datatable();
 
         //return Datatable::collection($this->repository->all($this->columns))
-        return Datatable::query($datas)
+        return $datatable->query($datas)
             ->addColumn($this->setSelectionColumn())
             ->showColumns($this->repository->getColumns())
-            ->addColumn($this->setMainColumn($this->repository->getMainColumn()))
+            ->addColumn($this->setMainColumn())
             ->addColumn($this->setActionsColumn())
             ->searchColumns($this->columns)
             //->searchColumns('category')
@@ -111,41 +112,39 @@ class BaseController extends Controller {
 
     protected function setSelectionColumn()
     {
-        //$primaryKeyName = $this->primaryKeyName;
-        $primaryKeyName = 'id';
+        $keyName = $this->repository->getKeyName();
 
-        return new FunctionColumn('Selection', function($repository) use ($primaryKeyName)
+        return new FunctionColumn('Selection', function($repository) use ($keyName)
         {
-            return Form::checkbox('selected[]', $repository->{$primaryKeyName});
+            return Form::checkbox('selected[]', $repository->{$keyName});
         });
     }
 
     protected function setActionsColumn()
     {
-        //$primaryKeyName = $this->primaryKeyName;
-        $primaryKeyName = 'id';
+        $keyName = $this->repository->getKeyName();
 
-
-        return new FunctionColumn('Actions', function($repository) use ($primaryKeyName)
+        return new FunctionColumn('Actions', function($repository) use ($keyName)
         {
-            $actions[] = link_to_action($this->getActionCtrl('getEdit'), 'Edit', $parameters = array($repository->{$primaryKeyName}), $attributes = array('class' => 'glyphicon glyphicon-edit', 'alt' => 'edit', 'title' => 'View'));
-            $actions[] = link_to_action($this->getActionCtrl('getDestroy'), 'Del', $parameters = array($repository->{$primaryKeyName}), $attributes = array('class' => 'glyphicon glyphicon-remove', 'alt' => 'delete', 'title' => 'delete'));
+            $actions[] = link_to_action($this->getActionCtrl('getEdit'), 'Edit', $parameters = array($repository->{$keyName}), $attributes = array('class' => 'glyphicon glyphicon-edit', 'alt' => 'edit', 'title' => 'View'));
+            $actions[] = link_to_action($this->getActionCtrl('getDestroy'), 'Del', $parameters = array($repository->{$keyName}), $attributes = array('class' => 'glyphicon glyphicon-remove', 'alt' => 'delete', 'title' => 'delete'));
 
             return implode('&nbsp; - &nbsp;', $actions);
         });
     }
 
-    protected function setMainColumn($mainColumn)
+    protected function setMainColumn($mainColumn = null)
     {
 
-        //$primaryKeyName = $this->primaryKeyName;
-        $primaryKeyName = 'id';
-
+        if ($mainColumn === null) {
+            $mainColumn = $this->repository->getMainColumn();
+        }
+        $keyName = $this->repository->getKeyName();
 
         // Add link to main column item
-        return new FunctionColumn($mainColumn, function($repository) use ($mainColumn, $primaryKeyName)
+        return new FunctionColumn($mainColumn, function($repository) use ($mainColumn, $keyName)
         {
-            return link_to_action($this->getActionCtrl('getShow'), $repository->{$mainColumn}, $parameters = array($repository->{$primaryKeyName}));
+            return link_to_action($this->getActionCtrl('getShow'), $repository->{$mainColumn}, $parameters = array($repository->{$keyName}));
         });
     }
 
@@ -174,12 +173,14 @@ class BaseController extends Controller {
     {
         $item = $this->repository->find($id);
 
+        $form = $this->repository->getForm();
+
         if (is_null($item))
         {
             return Redirect::route('crud.index');
         }
 
-        return View::make('admin::crud.edit', compact('item'));
+        return View::make('admin::crud.edit', compact('item', 'form'));
     }
 
     /**

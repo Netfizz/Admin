@@ -99,11 +99,11 @@ class BaseController extends Controller {
 
         //return Datatable::collection($this->repository->all($this->columns))
         return $datatable->query($datas)
-            ->addColumn($this->setSelectionColumn())
+            //->addColumn($this->setSelectionColumn())
             ->showColumns($this->repository->getColumns())
             ->addColumn($this->setMainColumn())
             ->addColumn($this->setActionsColumn())
-            ->searchColumns($this->columns)
+            //->searchColumns($this->columns)
             //->searchColumns('category')
             //->orderColumns($this->columns)
             ->make();

@@ -23,12 +23,16 @@ class EntityRepository implements EntityRepositoryInterface {
 
     }
 
+
     public function setDatatable()
     {
+
         return Datatable::table()
-            ->addColumn('')
+            //->addColumn(array('Selection' => 'Selection'))
             ->addColumn($this->getColumns())       // these are the column headings to be shown
             ->addColumn('Actions')
+
+            // ->addColumn('Actionwxws')
             //->setUrl(URL::action($this->getActionCtrl('getDatatableCollection')))   // this is the route where data will be retrieved
             ->setOptions('bStateSave', 'true'); // activate state history
             //->render();

@@ -50,6 +50,12 @@
 <div class="container">
     {{ $breadcrumbs }}
 
+    @if (Session::has('message'))
+    <div class="flash alert">
+        <p>{{ Session::get('message') }}</p>
+    </div>
+    @endif
+
     <div class="row">
         @yield('content')
     </div>

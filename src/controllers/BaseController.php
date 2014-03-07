@@ -1,10 +1,11 @@
 <?php namespace Netfizz\Admin\Controllers;
 
+use Cviebrock\EloquentSluggable\Test\Post;
 use \Illuminate\Routing\Controller;
 use Chumper\Datatable\Datatable;
 use Chumper\Datatable\Columns\FunctionColumn;
 
-use View, URL, Form, DB, Redirect, RuntimeException;
+use View, URL, Form, DB, Redirect, Input, Validator, RuntimeException;
 
 class BaseController extends Controller {
 
@@ -96,9 +97,13 @@ class BaseController extends Controller {
         $datas = $this->repository->getDatatableCollection();
 
         $datatable = new Datatable();
+        $collection = $this->repository->all();
 
-        //return Datatable::collection($this->repository->all($this->columns))
-        return $datatable->query($datas)
+        //var_dump($collection, \Post::all());
+        //die;
+
+        return $datatable->collection($collection)
+        //return $datatable->query($datas)
             //->addColumn($this->setSelectionColumn())
             ->showColumns($this->repository->getColumns())
             ->addColumn($this->setMainColumn())
@@ -173,12 +178,12 @@ class BaseController extends Controller {
     {
         $item = $this->repository->find($id);
 
-        $form = $this->repository->getForm();
-
         if (is_null($item))
         {
             return Redirect::route('crud.index');
         }
+
+        $form = $this->repository->getForm($item);
 
         return View::make('admin::crud.edit', compact('item', 'form'));
     }
@@ -189,10 +194,36 @@ class BaseController extends Controller {
      * @param  int  $id
      * @return Response
      */
-    /*
-    public function update($id)
+
+    public function putEdit($id)
     {
         $input = array_except(Input::all(), '_method');
+        //$validation = Validator::make($input, Tweet::$rules);
+
+        $rules =  $this->repository->getRules();
+        $validation = Validator::make($input, $rules);
+
+        if ($validation->passes())
+        {
+            $item = $this->repository->find($id);
+            $item->update($input);
+
+            return Redirect::action($this->getActionCtrl('getIndex'), $id)
+                ->with('message', 'Item updated.');
+        }
+
+        return Redirect::action($this->getActionCtrl('getEdit'), $id)
+            ->withInput()
+            ->withErrors($validation)
+            ->with('message', 'There were validation errors.');
+
+
+        $input = array_except(Input::all(), '_method');
+
+        var_dump($id, $input);
+        die;
+
+        /*
         $validation = Validator::make($input, Tweet::$rules);
 
         if ($validation->passes())
@@ -207,6 +238,16 @@ class BaseController extends Controller {
             ->withInput()
             ->withErrors($validation)
             ->with('message', 'There were validation errors.');
+        */
+    }
+
+    /*
+    public function putEdit($id)
+    {
+        $input = array_except(Input::all(), '_method');
+
+        var_dump($id, $input);
+        die;
     }
     */
 

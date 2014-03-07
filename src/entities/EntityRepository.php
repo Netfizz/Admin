@@ -2,6 +2,10 @@
 
 use Chumper\Datatable\Datatable;
 use Chumper\Datatable\Columns\FunctionColumn;
+use Illuminate\Support\Pluralizer;
+use Netfizz\FormBuilder\FormBuilder;
+
+
 use DB, Form, RuntimeException;
 
 class EntityRepository implements EntityRepositoryInterface {
@@ -44,14 +48,19 @@ class EntityRepository implements EntityRepositoryInterface {
         return $this->model->getDatatableCollection();
     }
 
-    public function all()
+    public function all($columns = array('*'))
     {
-
+        return $this->model->all($columns);
     }
 
     public function find($id)
     {
         return $this->model->find($id);
+    }
+
+    public function findOrFail($id)
+    {
+        return $this->model->findOrFail($id);
     }
 
 
@@ -81,15 +90,13 @@ class EntityRepository implements EntityRepositoryInterface {
         return $this->mainColumn;
     }
 
-    public function getForm()
+    public function getForm($item)
     {
+        $form = new FormBuilder($this->model);
 
-        $form = Form::open();
-        $form .= Form::text('username');
+        $form->populate($item);
 
-        $form .= Form::close();
-
-        return $form;
+        return $form->getForm();
     }
 
     /**
@@ -98,6 +105,13 @@ class EntityRepository implements EntityRepositoryInterface {
     public function getKeyName()
     {
         return $this->model->getKeyName();
+    }
+
+
+    public function getRules()
+    {
+        $model = $this->model;
+        return $model::$rules;
     }
 
 } 

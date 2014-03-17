@@ -17,6 +17,9 @@
             "src/controllers",
             "src/entities"
         ],
+        "files": [
+            "src/helpers.php"
+        ],
         "psr-0": {
             "Netfizz\\Admin\\": "src/"
         }

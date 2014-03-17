@@ -5,7 +5,7 @@ use \Illuminate\Routing\Controller;
 use Chumper\Datatable\Datatable;
 use Chumper\Datatable\Columns\FunctionColumn;
 
-use View, URL, Form, DB, Redirect, Input, Validator, RuntimeException;
+use View, URL, Form, DB, Redirect, Input, Validator, Route, Str, RuntimeException;
 
 class BaseController extends Controller {
 
@@ -66,28 +66,108 @@ class BaseController extends Controller {
      */
     public function getIndex()
     {
-        /*
-        if(Datatable::shouldHandle())
-        {
-            return $this->retrieveDatatableCollection();
-        }
-
-
-        $datatable = Datatable::table()
-            ->addColumn('')
-            ->addColumn($this->columns)       // these are the column headings to be shown
-            ->addColumn('Actions')
-            ->setUrl(URL::action($this->getActionCtrl('getDatatableCollection')))   // this is the route where data will be retrieved
-            ->setOptions('bStateSave', 'true')
-            ->render();
-        */
-
         $datatable = $this->repository->setDatatable();
-
-        $datatable->setUrl(URL::action($this->getActionCtrl('getDatatableCollection')));   // this is the route where data will be retrieved
 
         return View::make('admin::crud.index')->withDatatable($datatable);
     }
+
+
+    public function getCreate()
+    {
+        $form = $this->repository->getForm();
+
+        return View::make('admin::crud.edit', compact('form'));
+    }
+
+    public function putCreate()
+    {
+        if ($this->repository->store())
+        {
+            return Redirect::action($this->getActionCtrl('getIndex'))
+                ->with('message', 'Item updated.');
+        }
+
+        return Redirect::action($this->getActionCtrl('getCreate'))
+            ->withInput()
+            ->withErrors($this->repository->getError())
+            ->with('message', 'There were validation errors.');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function getShow($id)
+    {
+        $item = $this->repository->findOrFail($id);
+
+        return $item;
+
+        //return View::make('tweets.show', compact('tweet'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function getEdit($id)
+    {
+        $item = $this->repository->find($id);
+
+        if (is_null($item))
+        {
+            return Redirect::route('crud.index');
+        }
+
+        $form = $this->repository->getForm($item);
+
+        return View::make('admin::crud.edit', compact('item', 'form'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+
+    public function putEdit($id)
+    {
+
+        if ($this->repository->update($id))
+        {
+            return Redirect::action($this->getActionCtrl('getIndex'))
+                ->with('message', 'Item updated.');
+        }
+
+        return Redirect::action($this->getActionCtrl('getEdit'), $id)
+            ->withInput()
+            ->withErrors($this->repository->getError())
+            ->with('message', 'There were validation errors.');
+
+    }
+
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function getDestroy($id)
+    {
+        $this->repository->find($id)->delete();
+
+        return Redirect::action($this->getActionCtrl('getIndex'));
+    }
+
+
+
+
 
     public function getDatatableCollection()
     {
@@ -103,7 +183,7 @@ class BaseController extends Controller {
         //die;
 
         return $datatable->collection($collection)
-        //return $datatable->query($datas)
+            //return $datatable->query($datas)
             //->addColumn($this->setSelectionColumn())
             ->showColumns($this->repository->getColumns())
             ->addColumn($this->setMainColumn())
@@ -151,117 +231,6 @@ class BaseController extends Controller {
         {
             return link_to_action($this->getActionCtrl('getShow'), $repository->{$mainColumn}, $parameters = array($repository->{$keyName}));
         });
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function getShow($id)
-    {
-        $item = $this->repository->findOrFail($id);
-
-        return $item;
-
-        //return View::make('tweets.show', compact('tweet'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function getEdit($id)
-    {
-        $item = $this->repository->find($id);
-
-        if (is_null($item))
-        {
-            return Redirect::route('crud.index');
-        }
-
-        $form = $this->repository->getForm($item);
-
-        return View::make('admin::crud.edit', compact('item', 'form'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-
-    public function putEdit($id)
-    {
-        $input = array_except(Input::all(), '_method');
-        //$validation = Validator::make($input, Tweet::$rules);
-
-        $rules =  $this->repository->getRules();
-        $validation = Validator::make($input, $rules);
-
-        if ($validation->passes())
-        {
-            $item = $this->repository->find($id);
-            $item->update($input);
-
-            return Redirect::action($this->getActionCtrl('getIndex'), $id)
-                ->with('message', 'Item updated.');
-        }
-
-        return Redirect::action($this->getActionCtrl('getEdit'), $id)
-            ->withInput()
-            ->withErrors($validation)
-            ->with('message', 'There were validation errors.');
-
-
-        $input = array_except(Input::all(), '_method');
-
-        var_dump($id, $input);
-        die;
-
-        /*
-        $validation = Validator::make($input, Tweet::$rules);
-
-        if ($validation->passes())
-        {
-            $country = $this->tweet->find($id);
-            $country->update($input);
-
-            return Redirect::route('tweets.show', $id);
-        }
-
-        return Redirect::route('tweets.edit', $id)
-            ->withInput()
-            ->withErrors($validation)
-            ->with('message', 'There were validation errors.');
-        */
-    }
-
-    /*
-    public function putEdit($id)
-    {
-        $input = array_except(Input::all(), '_method');
-
-        var_dump($id, $input);
-        die;
-    }
-    */
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function getDestroy($id)
-    {
-        $this->repository->find($id)->delete();
-
-        return Redirect::action($this->getActionCtrl('getIndex'));
     }
 
 }

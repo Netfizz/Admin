@@ -19,17 +19,23 @@ class EntityRepository implements EntityRepositoryInterface {
 
     protected $mainColumn;
 
+    protected $form;
+
     protected $validator;
 
     protected $rules = array();
+
+    protected $messages = array();
 
     protected $error;
 
     protected $input;
 
-    public function __construct(Validator $validator = null)
+    public function __construct(Validator $validator = null, $form = null)
     {
         $this->validator = $validator;
+
+        $this->form = $form;
     }
 
 
@@ -158,7 +164,11 @@ class EntityRepository implements EntityRepositoryInterface {
      */
     public function setValidator(Validator $validator = null)
     {
-        $this->validator = $validator ?: Validator::make($this->getInput(), $this->getRules());
+        $this->validator = $validator ?: Validator::make(
+            $this->getInput(),
+            $this->getRules(),
+            $this->getMessages()
+        );
     }
 
 
@@ -169,6 +179,11 @@ class EntityRepository implements EntityRepositoryInterface {
     public function getRules()
     {
         return $this->rules;
+    }
+
+    public function getMessages()
+    {
+        return $this->messages;
     }
 
 
@@ -199,28 +214,45 @@ class EntityRepository implements EntityRepositoryInterface {
 
 
     /**
-     * Set inputs
+     * Set Input
+     * @param null $input
      */
     public function setInput($input = null)
     {
         $this->input = $input ?: array_except(Input::all(), '_method');
     }
 
-
-
-
+    /**
+     * Retrieve form
+     *
+     * @param null $item
+     * @return mixed
+     */
     public function getForm($item = null)
     {
-        $form = new FormBuilder($this->model);
-
-        if ($item) {
-            $form->populate($item);
+        // Generate form if it doesn't exist
+        if ($this->form === null)
+        {
+            $this->setForm();
         }
 
-        return $form->getForm();
+        if ($item)
+        {
+            $this->form->populate($item);
+        }
+
+        return $this->form->getForm();
     }
 
 
+    /**
+     * Set form or generate it based on his model
+     * @param null $form
+     */
+    public function setForm($form = null)
+    {
+        $this->form = $form ?: new FormBuilder($this->model);
+    }
 
 
 

@@ -21,7 +21,7 @@
             "src/helpers.php"
         ],
         "psr-0": {
-            "Netfizz\\Admin\\": "src/"
+            "Netfizz\\Admin": "src/"
         }
     },
     "minimum-stability": "dev"

@@ -11,6 +11,16 @@
 </ul>
 @endif
 
-{{ $form }}
+{{ $form->open }}
+
+@foreach ($form->elements as $element)
+    {{ $element }}
+@endforeach
+
+<p>
+    {{ $form->buttons }}
+</p>
+
+{{ $form->close }}
 
 @stop

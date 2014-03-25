@@ -89,7 +89,8 @@ class BaseController extends Controller {
 
         return Redirect::action($this->getActionCtrl('getCreate'))
             ->withInput()
-            ->withErrors($this->repository->getError())
+            //->withErrors($this->repository->getError())
+            ->withErrors($this->repository->getValidator())
             ->with('message', 'There were validation errors.');
     }
 
@@ -102,6 +103,8 @@ class BaseController extends Controller {
     public function getShow($id)
     {
         $item = $this->repository->findOrFail($id);
+
+        //var_dump($item->getRelations());
 
         return $item;
 

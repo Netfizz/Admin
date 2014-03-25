@@ -21,6 +21,8 @@ class EntityRepository implements EntityRepositoryInterface {
 
     protected $form;
 
+    protected $formConfig;
+
     protected $validator;
 
     protected $rules = array();
@@ -31,7 +33,7 @@ class EntityRepository implements EntityRepositoryInterface {
 
     protected $input;
 
-    public function __construct(Validator $validator = null, $form = null)
+    public function __construct(Validator $validator = null,  $form = null)
     {
         $this->validator = $validator;
 
@@ -241,6 +243,8 @@ class EntityRepository implements EntityRepositoryInterface {
             $this->form->populate($item);
         }
 
+        //$this->form->setValidator($this->getValidator());
+
         return $this->form->getForm();
     }
 
@@ -251,7 +255,7 @@ class EntityRepository implements EntityRepositoryInterface {
      */
     public function setForm($form = null)
     {
-        $this->form = $form ?: new FormBuilder($this->model);
+        $this->form = $form ?: new FormBuilder($this->formConfig, $this->model, $this->getValidator());
     }
 
 

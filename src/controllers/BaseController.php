@@ -149,7 +149,8 @@ class BaseController extends Controller {
 
         return Redirect::action($this->getActionCtrl('getEdit'), $id)
             ->withInput()
-            ->withErrors($this->repository->getError())
+            ->withErrors($this->repository->getErrors())
+            ->withWarnings($this->repository->getWarnings())
             ->with('message', 'There were validation errors.');
 
     }

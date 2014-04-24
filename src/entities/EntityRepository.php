@@ -4,6 +4,7 @@ use Chumper\Datatable\Datatable;
 //use Chumper\Datatable\Columns\FunctionColumn;
 //use Illuminate\Support\Pluralizer;
 use Netfizz\FormBuilder\FormBuilder;
+use Country;
 
 
 use DB, Form, Input, Validator, RuntimeException;
@@ -29,7 +30,9 @@ class EntityRepository implements EntityRepositoryInterface {
 
     protected $messages = array();
 
-    protected $error;
+    protected $errors;
+
+    protected $warnings;
 
     protected $input;
 
@@ -102,7 +105,13 @@ class EntityRepository implements EntityRepositoryInterface {
         }
 
         $item = new $this->model;
-        $item->create($this->getInput());
+        $item->fill($this->getInput());
+
+        // Run the hydration method that populates anything else that is required / runs any other
+        // model interactions and save it.
+        $item->hydrateWithRelationship()->save();
+
+        //$item->create($this->getInput());
 
         return $item;
     }
@@ -121,8 +130,17 @@ class EntityRepository implements EntityRepositoryInterface {
             return false;
         }
 
-        $item = $this->find($id);
-        $item->update($this->getInput());
+        //var_dump($this->getInput());
+        //die;
+
+        $item = $this->findOrFail($id);
+
+        $item->fill($this->getInput());
+
+        // Run the hydration method that populates anything else that is required / runs any other
+        // model interactions and save it.
+        $item->hydrateWithRelationship()->save();
+
 
         return $item;
     }
@@ -139,7 +157,7 @@ class EntityRepository implements EntityRepositoryInterface {
 
         if ( ! $validator->passes())
         {
-            $this->error = $validator->messages();
+            $this->errors = $validator->messages();
             return false;
         }
 
@@ -189,14 +207,20 @@ class EntityRepository implements EntityRepositoryInterface {
     }
 
 
+    public function getWarnings()
+    {
+        return $this->warnings;
+    }
+
+
     /**
      * Retrieve errors
      *
      * @return mixed
      */
-    public function getError()
+    public function getErrors()
     {
-        return $this->error;
+        return $this->errors;
     }
 
 
@@ -240,10 +264,17 @@ class EntityRepository implements EntityRepositoryInterface {
 
         if ($item)
         {
+            /*
+            $value = $item->getAttributes();
+            $value['countries'] = $item->getAttribute('countries')->lists('id');
+            $value['blocks'] = array(2, 3, 5);
+
+            //var_dump($value, $item->getAttribute('countries')->lists('id'));
+
+            $value = $item;
+            */
             $this->form->populate($item);
         }
-
-        //$this->form->setValidator($this->getValidator());
 
         return $this->form->getForm();
     }

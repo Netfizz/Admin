@@ -52,7 +52,7 @@
     {{ $breadcrumbs }}
 
     @if (Session::has('message'))
-    <div class="flash alert">
+    <div class="flash alert alert-success">
         <p>{{ Session::get('message') }}</p>
     </div>
     @endif

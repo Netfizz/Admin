@@ -1,5 +1,6 @@
 <?php namespace Netfizz\Entities;
 
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Eloquent, DB;
 
 class EntityEloquentModel extends Eloquent implements EntityModelInterface {
@@ -14,6 +15,39 @@ class EntityEloquentModel extends Eloquent implements EntityModelInterface {
     public function getDatatableCollection()
     {
         return DB::table($this->getTable());
+    }
+
+
+    public function hydrateWithRelationship() {
+
+        $attributes = $this->getAttributes();
+        foreach($attributes as $attribute => $value) {
+
+            // Auto sync relationship
+            if (is_array($value)) {
+                $this->syncRelationship($attribute, $value);
+            }
+        }
+
+        return $this;
+    }
+
+
+    public function syncRelationship($relationshipName, $value)
+    {
+
+        $camelKey = camel_case($relationshipName);
+
+        if (method_exists($this, $camelKey))
+        {
+            $relations = $this->$camelKey();
+
+            if ($relations instanceof Relation)
+            {
+                $this->$camelKey()->sync($value);
+                unset($this->$relationshipName);
+            }
+        }
     }
 
 }

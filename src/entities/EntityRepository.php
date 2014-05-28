@@ -4,6 +4,7 @@ use Chumper\Datatable\Datatable;
 //use Chumper\Datatable\Columns\FunctionColumn;
 //use Illuminate\Support\Pluralizer;
 use Netfizz\FormBuilder\FormBuilder;
+use ArrayIterator;
 use Country;
 
 
@@ -155,6 +156,9 @@ class EntityRepository implements EntityRepositoryInterface {
     {
         $validator = $this->getValidator();
 
+        //var_dump($validator);
+        //die;
+
         if ( ! $validator->passes())
         {
             $this->errors = $validator->messages();
@@ -198,8 +202,80 @@ class EntityRepository implements EntityRepositoryInterface {
      */
     public function getRules()
     {
+        foreach($this->rules as $name => $rules)
+        {
+            if (str_contains($name, '.'))
+            {
+                $this->setCollectionRules($name, $rules);
+                unset($this->rules[$name]);
+            }
+        }
+
         return $this->rules;
     }
+
+
+    protected function setCollectionRules($name, $rules)
+    {
+        $input = $this->getInput();
+        $collection = explode('.', $name);
+
+        /*
+        for ($i = 0; $i < count($collection); $i++)
+        {
+            $segment = $collection[$i];
+            $next = next($collection);
+
+            $result = array_get($input, $segment, null);
+
+            if (is_array($result) && $nb = count($result))
+            {
+                for ($a = 0; $a < $nb; $a++)
+                {
+                    $collection[] = $segment . '.' . $a . '.' . $next;
+                }
+            }
+            elseif (is_string($result))
+            {
+                $this->rules[$segment] = $rules;
+            }
+        }
+        */
+
+        $iterator = new ArrayIterator($collection);
+        while($iterator->valid())
+        {
+            $segment = $iterator->current();
+            $result = array_get($input, $segment, null);
+
+            if (is_array($result) && ! empty($result))
+            {
+                $nextIndex = $iterator->key() + 1;
+                if ($iterator->offsetExists($nextIndex))
+                {
+                    $next = $iterator->offsetGet($nextIndex);
+                    $iterator->offsetUnset($nextIndex);
+                }
+
+                foreach($result as $key => $value)
+                {
+                    // Check if entire collection row is empty
+                    $value = array_filter($value);
+                    if ( ! empty($value))
+                    {
+                        $iterator->append($segment . '.' . $key . '.' . $next);
+                    }
+                }
+            }
+            else
+            {
+                $this->rules[$segment] = $rules;
+            }
+
+            $iterator->next();
+        }
+    }
+
 
     public function getMessages()
     {
@@ -220,6 +296,9 @@ class EntityRepository implements EntityRepositoryInterface {
      */
     public function getErrors()
     {
+
+        //var_dump($this->errors->getMessages());
+
         return $this->errors;
     }
 

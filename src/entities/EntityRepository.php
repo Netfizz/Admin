@@ -136,12 +136,25 @@ class EntityRepository implements EntityRepositoryInterface {
 
         $item = $this->findOrFail($id);
 
+        //var_dump($item, $this->getInput());
+        //$this->guarded[] = 'blocks';
+        //$this->guarded[] = 'countries';
+
+        //$item->guardRelations();
+
         $item->fill($this->getInput());
+
+
 
         // Run the hydration method that populates anything else that is required / runs any other
         // model interactions and save it.
-        $item->hydrateWithRelationship()->save();
+        //$item->hydrateWithRelationship();
+        //$item->save();
 
+        $item->push();
+
+        //var_dump($item);
+        //die;
 
         return $item;
     }

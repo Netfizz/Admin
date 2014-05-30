@@ -1,3 +1,7 @@
 body.interface {
     padding-top: 70px;
 }
+
+.nav-tabs {
+    margin-bottom: 15px;
+}

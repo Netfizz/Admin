@@ -8,7 +8,6 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/bootstrap.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/style.css') }}">
     <script src="{{ asset('packages/netfizz/admin/js/jquery-2.1.0.min.js') }}"></script>
@@ -57,7 +56,7 @@
     </div>
     @endif
 
-    <div class="row">
+    <div class="test">
         @yield('content')
     </div>
 </div><!-- /.container -->

@@ -147,6 +147,9 @@ class BaseController extends Controller {
                 ->with('message', 'Item updated.');
         }
 
+        //var_dump($this->repository->getErrors());
+        //die;
+
         return Redirect::action($this->getActionCtrl('getEdit'), $id)
             ->withInput()
             ->withErrors($this->repository->getErrors())

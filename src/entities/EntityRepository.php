@@ -107,10 +107,11 @@ class EntityRepository implements EntityRepositoryInterface {
 
         $item = new $this->model;
         $item->fill($this->getInput());
+        $item->save();
 
         // Run the hydration method that populates anything else that is required / runs any other
         // model interactions and save it.
-        $item->hydrateWithRelationship()->save();
+        //$item->hydrateWithRelationship()->save();
 
         //$item->create($this->getInput());
 
@@ -153,7 +154,7 @@ class EntityRepository implements EntityRepositoryInterface {
 
         $item->push();
 
-        //var_dump($item);
+        //var_dump($item->blocks()->getResults()->toArray());
         //die;
 
         return $item;
@@ -223,6 +224,9 @@ class EntityRepository implements EntityRepositoryInterface {
                 unset($this->rules[$name]);
             }
         }
+
+        //var_dump($this->rules);
+        //die;
 
         return $this->rules;
     }

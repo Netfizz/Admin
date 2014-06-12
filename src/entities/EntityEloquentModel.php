@@ -21,75 +21,75 @@ class EntityEloquentModel extends Eloquent implements EntityModelInterface {
         return DB::table($this->getTable());
     }
 
-
-    public function hydrateWithRelationship() {
-
-        $attributes = $this->getAttributes();
-        foreach($attributes as $attribute => $value) {
-
-            // Auto sync relationship
-            if (is_array($value)) {
-                //var_dump($attribute, $value);
-                $this->syncRelationship($attribute, $value);
-
-            }
-        }
-
-        //die;
-
-        return $this;
-    }
-
-
-    public function syncRelationship($relationshipName, $value)
-    {
-
-        $camelKey = camel_case($relationshipName);
-
-        if (method_exists($this, $camelKey))
-        {
-            $this->purgeable[] = $relationshipName;
-
-            $relations = $this->$camelKey();
-
-
-            $relationType = class_basename(get_class($relations));
-
-            if ($relationType === 'MorphMany') {
-                //var_dump($camelKey, $relationType, $value, $relations);
-                /*
-                foreach ($this->relations as $models)
-                {
-                    foreach (Collection::make($models) as $model)
-                    {
-                        //if ( ! $model->push()) return false;
-                        var_dump($model);
-                    }
-                }
-                */
-
-
-            } else {
-                $this->$camelKey()->sync($value);
-                //unset($this->$relationshipName);
-            }
-
-
-
-            /*
-            if ($relations instanceof Relation)
-            {
-                //var_dump($camelKey, $this->{$camelKey}, $value, 'xxxxxxxxxxxxxxxx');
-                //$this->$camelKey()->sync($value);
-                //unset($this->$relationshipName);
-
-
-            }
-            */
-
-        }
-    }
-
+//
+//    public function hydrateWithRelationship() {
+//
+//        $attributes = $this->getAttributes();
+//        foreach($attributes as $attribute => $value) {
+//
+//            // Auto sync relationship
+//            if (is_array($value)) {
+//                //var_dump($attribute, $value);
+//                $this->syncRelationship($attribute, $value);
+//
+//            }
+//        }
+//
+//        //die;
+//
+//        return $this;
+//    }
+//
+//
+//    public function syncRelationship($relationshipName, $value)
+//    {
+//
+//        $camelKey = camel_case($relationshipName);
+//
+//        if (method_exists($this, $camelKey))
+//        {
+//            $this->purgeable[] = $relationshipName;
+//
+//            $relations = $this->$camelKey();
+//
+//
+//            $relationType = class_basename(get_class($relations));
+//
+//            if ($relationType === 'MorphMany') {
+//                //var_dump($camelKey, $relationType, $value, $relations);
+//                /*
+//                foreach ($this->relations as $models)
+//                {
+//                    foreach (Collection::make($models) as $model)
+//                    {
+//                        //if ( ! $model->push()) return false;
+//                        var_dump($model);
+//                    }
+//                }
+//                */
+//
+//
+//            } else {
+//                $this->$camelKey()->sync($value);
+//                //unset($this->$relationshipName);
+//            }
+//
+//
+//
+//            /*
+//            if ($relations instanceof Relation)
+//            {
+//                //var_dump($camelKey, $this->{$camelKey}, $value, 'xxxxxxxxxxxxxxxx');
+//                //$this->$camelKey()->sync($value);
+//                //unset($this->$relationshipName);
+//
+//
+//            }
+//            */
+//
+//        }
+//    }
+//
 
 
 
@@ -106,37 +106,54 @@ class EntityEloquentModel extends Eloquent implements EntityModelInterface {
     public function fillRelations(array $attributes)
     {
         $attributes = $this->getAttributes();
-        foreach($attributes as $attribute => $value)
+
+        foreach($attributes as $attribute => $collection)
         {
 
             if ($relationObj = $this->isRelationshipProperty($attribute))
             {
                 $this->purgeable[] = $attribute;
 
-                if (is_array($value) && is_array(current($value))) {
-
+                if (is_array($collection) && is_array(current($collection))) {
 
                     $relatedModel = $relationObj->getRelated();
-                    foreach($value as $delta => $input)
+                    $keyName = $relatedModel->getKeyName();
+                    $previousCollection = $relationObj->getResults();
+
+                    $keepItemsIds = array();
+
+                    // Add new items and update existing items
+                    foreach($collection as $item)
                     {
-                        if (isset($this->relations[$attribute][$delta]))
+                        $check = array_filter($item);
+                        if (empty($check))
                         {
-                            $this->relations[$attribute][$delta]->fill($input);
-                        } else {
-
-                            $input['blockable_id'] = '2';
-                            $input['blockable_type'] = 'post';
-
-                            $item = new $relatedModel($input);
-                            $item->save();
-
-                            $this->relations[$attribute]->add($item);
+                            continue;
                         }
+
+                        if (array_key_exists($keyName, $item)
+                            && $itemModel = $previousCollection->find($item[$keyName]))
+                        {
+                            $itemModel->update($item);
+                        }
+                        else
+                        {
+                            unset($item[$keyName]);
+                            $itemModel = $relationObj->create($item);
+                        }
+
+                        $keepItemsIds[] = $itemModel->getKey();
+                    }
+
+                    // supprimer ancien
+                    $deleteIds = array_diff($previousCollection->modelKeys(), $keepItemsIds);
+                    if ( count($deleteIds) > 0 )
+                    {
+                        $relatedModel->destroy($deleteIds);
                     }
                 }
             }
         }
-
     }
 
 

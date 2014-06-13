@@ -106,6 +106,8 @@ class BaseController extends Controller {
 
         //var_dump($item->getRelations());
 
+        var_dump($item->toArray());
+
         return $item;
 
         //return View::make('tweets.show', compact('tweet'));
@@ -141,8 +143,11 @@ class BaseController extends Controller {
     public function putEdit($id)
     {
 
+
         if ($this->repository->update($id))
         {
+            //var_dump($_POST);
+            //die;
             return Redirect::action($this->getActionCtrl('getIndex'))
                 ->with('message', 'Item updated.');
         }

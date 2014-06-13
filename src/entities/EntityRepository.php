@@ -132,17 +132,7 @@ class EntityRepository implements EntityRepositoryInterface {
             return false;
         }
 
-        //var_dump($this->getInput());
-        //die;
-
         $item = $this->findOrFail($id);
-
-        //var_dump($item, $this->getInput());
-        //$this->guarded[] = 'blocks';
-        //$this->guarded[] = 'countries';
-
-        //$item->guardRelations();
-
         $item->fill($this->getInput());
 
 
@@ -150,9 +140,9 @@ class EntityRepository implements EntityRepositoryInterface {
         // Run the hydration method that populates anything else that is required / runs any other
         // model interactions and save it.
         //$item->hydrateWithRelationship();
-        //$item->save();
+        $item->save();
 
-        $item->push();
+        // $item->push();
 
         //var_dump($item->blocks()->getResults()->toArray());
         //die;
@@ -350,7 +340,7 @@ class EntityRepository implements EntityRepositoryInterface {
      * @param null $item
      * @return mixed
      */
-    public function getForm($item = null)
+    public function getForm($model = null)
     {
         // Generate form if it doesn't exist
         if ($this->form === null)
@@ -358,7 +348,7 @@ class EntityRepository implements EntityRepositoryInterface {
             $this->setForm();
         }
 
-        if ($item)
+        if ($model)
         {
             /*
             $value = $item->getAttributes();
@@ -369,10 +359,16 @@ class EntityRepository implements EntityRepositoryInterface {
 
             $value = $item;
             */
-            $this->form->populate($item);
+            $this->form->populate($model);
+        }
+        else
+        {
+            $model = $this->getModel();
         }
 
-        return $this->form->getForm();
+
+
+        return $this->form->getForm($model);
     }
 
 

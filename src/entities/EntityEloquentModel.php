@@ -117,14 +117,14 @@ class EntityEloquentModel extends Eloquent implements EntityModelInterface {
     }
 
 
-    public function isRelationshipProperty($attribute)
+    public static function isRelationshipProperty($attribute)
     {
-        if ( ! method_exists($this, $attribute)) {
+        if ( ! method_exists(get_called_class(), $attribute)) {
             return false;
         }
 
         // if this method return an eloquent Relationships class
-        $relationObj = $this->$attribute();
+        $relationObj = self::$attribute();
         if (is_subclass_of($relationObj, 'Illuminate\Database\Eloquent\Relations\Relation')) {
             return $relationObj;
         }
@@ -133,6 +133,22 @@ class EntityEloquentModel extends Eloquent implements EntityModelInterface {
     }
 
 
+
+    /*
+    public function __call($name, $arguments)
+    {
+        // Note : la valeur de $name est sensible à la casse.
+        echo "Appel de la méthode '$name' "
+            . implode(', ', $arguments). "\n";
+    }
+
+    public static function __callStatic($name, $arguments)
+    {
+        // Note : la valeur de $name est sensible à la casse.
+        echo "Appel de la méthode statique '$name' "
+            . implode(', ', $arguments). "\n";
+    }
+    */
 
 
 

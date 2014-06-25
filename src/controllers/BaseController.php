@@ -177,6 +177,13 @@ class BaseController extends Controller {
         return Redirect::action($this->getActionCtrl('getIndex'));
     }
 
+    public function getDelete($id)
+    {
+        $this->repository->find($id)->forceDelete();
+
+        return Redirect::action($this->getActionCtrl('getIndex'));
+    }
+
 
 
 

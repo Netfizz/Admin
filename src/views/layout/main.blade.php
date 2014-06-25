@@ -9,10 +9,12 @@
     <meta name="author" content="">
     <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" href="{{ asset('packages/netfizz/form-builder/css/collection.css') }}" />
     <link rel="stylesheet" href="{{ asset('packages/netfizz/admin/css/style.css') }}">
     <script src="{{ asset('packages/netfizz/admin/js/jquery-2.1.0.min.js') }}"></script>
     <script src="{{ asset('packages/netfizz/admin/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('packages/netfizz/admin/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('packages/netfizz/sortable/js/jquery-sortable.js') }}"></script>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>

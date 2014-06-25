@@ -77,7 +77,7 @@ class EntityRepository implements EntityRepositoryInterface {
      */
     public function find($id)
     {
-        return $this->model->withTrashed()->find($id);
+        return $this->model->find($id);
     }
 
 
